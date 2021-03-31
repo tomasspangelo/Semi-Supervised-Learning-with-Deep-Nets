@@ -10,6 +10,7 @@ class Autoencoder(tf.keras.Model):
         super(Autoencoder, self).__init__(name=name, **kwargs)
         self.encoder = Encoder(latent_size)
         self.decoder = Decoder(image_shape)
+        self.latent_size = latent_size
 
     def call(self, inputs, training=None, mask=None):
         x = self.encoder(inputs)
@@ -52,6 +53,8 @@ class Encoder(tf.keras.Model):
         self.conv3.trainable = True
         self.flatten.trainable = True
         self.latent.trainable = True
+
+
 
 
 class Decoder(tf.keras.Model):
