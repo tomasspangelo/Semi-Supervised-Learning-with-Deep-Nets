@@ -239,7 +239,7 @@ def main():
 
     classifier_config = config["classifier"]
     latent_size = ae_config["latent_size"]
-    classifier2 = init_classifier(classifier_config, Encoder(latent_size), num_classes, freeze=False)
+    classifier2 = init_classifier(classifier_config, Encoder(latent_size), num_classes, freeze)
     hist2 = classifier2.fit(x_d2_train,
                             y_d2_train,
                             epochs=epochs,
