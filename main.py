@@ -42,20 +42,31 @@ def example():
     classifier.fit(x_train, y_train, epochs=10, batch_size=2)
 
 
-# TODO: add more loss functions
 def loss_from_string(name):
     loss = None
     if name == "mse":
         loss = tf.keras.losses.MeanSquaredError()
     elif name == "cc":
         loss = tf.keras.losses.CategoricalCrossentropy()
+    elif name == "bc":
+        loss = tf.keras.losses.BinaryCrossentropy()
+    elif name == "scc":
+        loss = tf.keras.losses.SparseCategoricalCrossentropy()
+    elif name == "kld":
+        loss = tf.keras.losses.KLDivergence()
+    elif name == "mae":
+        loss = tf.keras.losses.MeanAbsoluteError()
     return loss
 
 
-# TODO: add more optimizers
 def optimizer_from_string(name, learning_rate):
-    optimizer = None
-    if name == "adam":
+    if name == "adagrad":
+        optimizer = tf.keras.optimizers.Adagrad(learning_rate=learning_rate)
+    elif name == "sgd":
+        optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate)
+    elif name == "rmsprop":
+        optimizer = tf.keras.optimizers.RMSprop(learning_rate=learning_rate)
+    else:
         optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
     return optimizer
 
