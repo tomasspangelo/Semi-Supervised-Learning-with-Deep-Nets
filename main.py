@@ -1,8 +1,6 @@
 import sys
 from configparser import ConfigParser
 import matplotlib.pyplot as plt
-from matplotlib import colors
-from sklearn.manifold import TSNE
 
 from tensorflow.keras.datasets import mnist, fashion_mnist, cifar10
 from tensorflow.keras.utils import to_categorical

@@ -1,5 +1,8 @@
 import numpy as np
 from PIL import Image
+from matplotlib import colors
+from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt
 
 def convert_to_grayscale(arr):
     out = []
@@ -9,6 +12,7 @@ def convert_to_grayscale(arr):
         img = np.array(img)
         out.append(img)
     return np.array(out)
+
 
 # TODO: Add more colors
 def tsne(x, y, num, encoder):
