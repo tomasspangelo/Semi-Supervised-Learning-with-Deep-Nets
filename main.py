@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 from sklearn.manifold import TSNE
 
-from tensorflow.keras.datasets import mnist, fashion_mnist
+from tensorflow.keras.datasets import mnist, fashion_mnist, cifar10
 from tensorflow.keras.utils import to_categorical
 import tensorflow as tf
 
@@ -14,6 +14,7 @@ from classifier import Classifier
 from autoencoder import Autoencoder, Encoder
 
 from image_viewer import ImageViewer
+from utils import convert_to_grayscale, tsne
 
 
 def example():
@@ -83,21 +84,30 @@ def init_data(data_config):
 
     (x_train, y_train), (x_test, y_test) = (None, None), (None, None)
     num_classes = 0
+    rgb = False
     if dataset == "mnist":
         (x_train, y_train), (x_test, y_test) = mnist.load_data(path="mnist.npz")
         num_classes = 10
     elif dataset == "fashion_mnist":
         (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
         num_classes = 10
+    elif dataset == "cifar10":
+        (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+        rgb = True
+        num_classes = 10
 
     input_shape = x_train.shape[1:]
     x = np.concatenate((x_train, x_test), axis=0)
     x = x[:size]
+    if rgb:
+        x = convert_to_grayscale(x)
     y = np.concatenate((y_train, y_test), axis=0)
     y = y[:size]
     x = x.reshape(x.shape + (1,))
 
     x = tf.cast(x, tf.float32) / 255.0
+
+
 
     y = to_categorical(y)
 
@@ -163,23 +173,6 @@ def init_classifier(classifier_config, encoder, num_classes, freeze):
     classifier.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
 
     return classifier
-
-
-# TODO: Add more colors
-def tsne(x, y, num, encoder):
-    latents = encoder(x)
-    y = np.array([np.where(one_hot == 1)[0] for one_hot in y]).reshape(y.shape[0])
-    color_list = ["tab:blue", "tab:orange", "tab:green", "tab:red", "tab:purple",
-                  "tab:brown", "tab:pink", "tab:gray", "tab:olive", "tab:cyan"]
-    latents_embedded = TSNE(n_components=2, random_state=0).fit_transform(latents)
-    fig = plt.figure()
-    titles = ["tSNE prior to training", "tSNE after autoencoder training",
-              "tSNE after autoencoder training and classifier training"]
-    for i in range(len(latents_embedded)):
-        latent = latents_embedded[i]
-        plt.plot(latent[0], latent[1], color=color_list[y[i]], marker="o")
-        plt.title(titles[num-1])
-    return fig
 
 
 def main():
