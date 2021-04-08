@@ -12,7 +12,7 @@ from classifier import Classifier
 from autoencoder import Autoencoder, Encoder
 
 from image_viewer import ImageViewer
-from utils import convert_to_grayscale, tsne
+from utils import convert_to_grayscale, tsne, load_kmnist
 
 
 def example():
@@ -93,6 +93,9 @@ def init_data(data_config):
         (x_train, y_train), (x_test, y_test) = cifar10.load_data()
         rgb = True
         num_classes = 10
+    elif dataset == "kmnist":
+        (x_train, y_train), (x_test, y_test) = load_kmnist()
+        num_classes = 10
 
     input_shape = x_train.shape[1:]
     x = np.concatenate((x_train, x_test), axis=0)
@@ -104,8 +107,6 @@ def init_data(data_config):
     x = x.reshape(x.shape + (1,))
 
     x = tf.cast(x, tf.float32) / 255.0
-
-
 
     y = to_categorical(y)
 
