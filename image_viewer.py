@@ -12,6 +12,6 @@ class ImageViewer:
         for image in images:
             a = fig.add_subplot(n_rows, n_cols, i)
             a.axis("off")
-            plt.imshow(image)
+            plt.imshow(image, cmap="gray")
             i += 1
         fig.show()
