@@ -3,6 +3,8 @@ from PIL import Image
 from matplotlib import colors
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
+from image_viewer import ImageViewer
+
 
 def convert_to_grayscale(arr):
     out = []
@@ -29,3 +31,17 @@ def tsne(x, y, num, encoder):
         plt.plot(latent[0], latent[1], color=color_list[y[i]], marker="o")
         plt.title(titles[num - 1])
     return fig
+
+
+def load_kmnist():
+    with np.load("./datasets/kmnist-train-imgs.npz") as data:
+        x = data['arr_0']
+    with np.load("./datasets/kmnist-train-labels.npz") as data:
+        y = data['arr_0']
+    return x, y
+
+
+if __name__ == "__main__":
+    pass
+
+
