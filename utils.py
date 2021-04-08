@@ -2,6 +2,7 @@ import numpy as np
 from PIL import Image
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
+from scipy import io as spio
 
 
 def convert_to_grayscale(arr):
@@ -14,12 +15,14 @@ def convert_to_grayscale(arr):
     return np.array(out)
 
 
-# TODO: Add more colors
 def tsne(x, y, num, encoder):
     latents = encoder(x)
     y = np.array([np.where(one_hot == 1)[0] for one_hot in y]).reshape(y.shape[0])
     color_list = ["tab:blue", "tab:orange", "tab:green", "tab:red", "tab:purple",
-                  "tab:brown", "tab:pink", "tab:gray", "tab:olive", "tab:cyan"]
+                  "tab:brown", "tab:pink", "tab:gray", "tab:olive", "tab:cyan",
+                  "dimgray", "maroon", "gold", "lime", "lightsteelblue", "plum",
+                  "lightcyan", "tan", "yellow", "dodgerblue", "crimson", "hotpink",
+                  "mediumseagreen", "papayawhip", "mistyrose", "indigo"]
     latents_embedded = TSNE(n_components=2, random_state=0).fit_transform(latents)
     fig = plt.figure()
     titles = ["tSNE prior to training", "tSNE after autoencoder training",
@@ -44,7 +47,27 @@ def load_kmnist():
     return (x_train, y_train), (x_test, y_test)
 
 
+def load_emnist():
+    emnist = spio.loadmat("./datasets/emnist-letters.mat")
+
+    x_train = emnist["dataset"][0][0][0][0][0][0]
+    x_train = x_train.astype(np.float32)
+
+    y_train = emnist["dataset"][0][0][0][0][0][1]
+    y_train = y_train.reshape(y_train.shape[0]) - 1
+
+    x_test = emnist["dataset"][0][0][1][0][0][0]
+    x_test = x_test.astype(np.float32)
+
+    y_test = emnist["dataset"][0][0][1][0][0][1]
+    y_test = y_test.reshape(y_test.shape[0]) - 1
+
+    x_train = x_train.reshape(x_train.shape[0], 28, 28, order="A")
+    x_test = x_test.reshape(x_test.shape[0], 28, 28, order="A")
+
+    return (x_train, y_train), (x_test, y_test)
+
+
 if __name__ == "__main__":
+    (x_train, y_train), (x_test, y_test) = load_emnist()
     pass
-
-

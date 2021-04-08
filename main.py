@@ -12,7 +12,7 @@ from classifier import Classifier
 from autoencoder import Autoencoder, Encoder
 
 from image_viewer import ImageViewer
-from utils import convert_to_grayscale, tsne, load_kmnist
+from utils import convert_to_grayscale, tsne, load_kmnist, load_emnist
 
 
 def example():
@@ -96,6 +96,9 @@ def init_data(data_config):
     elif dataset == "kmnist":
         (x_train, y_train), (x_test, y_test) = load_kmnist()
         num_classes = 10
+    elif dataset == "emnist":
+        (x_train, y_train), (x_test, y_test) = load_emnist()
+        num_classes = 26
 
     input_shape = x_train.shape[1:]
     x = np.concatenate((x_train, x_test), axis=0)
