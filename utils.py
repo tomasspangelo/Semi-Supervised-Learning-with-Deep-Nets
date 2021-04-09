@@ -6,6 +6,11 @@ from scipy import io as spio
 
 
 def convert_to_grayscale(arr):
+    """
+    Converts a RBG image to greyscale.
+    :param arr: Array containing images.
+    :return: Numpy array containing images in greyscale.
+    """
     out = []
     for img_arr in arr:
         img = img_arr.astype(np.uint8)
@@ -16,6 +21,14 @@ def convert_to_grayscale(arr):
 
 
 def tsne(x, y, num, encoder):
+    """
+    Produces figure containing tSNE plot.
+    :param x: Data
+    :param y: Labels encoded as one hot vectors.
+    :param num: 1, 2 or 3 depending on when in training.
+    :param encoder: The encoder to produce latent vector.
+    :return: Figure containing tSNE plot.
+    """
     latents = encoder(x)
     y = np.array([np.where(one_hot == 1)[0] for one_hot in y]).reshape(y.shape[0])
     color_list = ["tab:blue", "tab:orange", "tab:green", "tab:red", "tab:purple",
@@ -35,6 +48,9 @@ def tsne(x, y, num, encoder):
 
 
 def load_kmnist():
+    """
+    :return: KMNIST dataset.
+    """
     with np.load("./datasets/kmnist-train-imgs.npz") as data:
         x_train = data['arr_0']
     with np.load("./datasets/kmnist-test-imgs.npz") as data:
@@ -48,6 +64,9 @@ def load_kmnist():
 
 
 def load_emnist():
+    """
+    :return: EMNIST Alphabetic dataset.
+    """
     emnist = spio.loadmat("./datasets/emnist-letters.mat")
 
     x_train = emnist["dataset"][0][0][0][0][0][0]
@@ -69,5 +88,4 @@ def load_emnist():
 
 
 if __name__ == "__main__":
-    (x_train, y_train), (x_test, y_test) = load_emnist()
     pass

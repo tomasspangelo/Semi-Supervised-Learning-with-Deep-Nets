@@ -16,33 +16,11 @@ from image_viewer import ImageViewer
 from utils import convert_to_grayscale, tsne, load_kmnist, load_emnist
 
 
-def example():
-    (x_train, y_train), (x_test, y_test) = mnist.load_data(path="mnist.npz")
-    # (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
-
-    x_train = x_train.reshape(x_train.shape + (1,))[:100]
-
-    # x_train = tf.image.decode_jpeg(x_train)
-    x_train = tf.cast(x_train, tf.float32) / 255.0
-    ImageViewer.view(x_train[0:10])
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
-    loss = tf.keras.losses.MeanSquaredError()
-    ae = Autoencoder(image_shape=(28, 28), latent_size=40)
-    ae.compile(optimizer=optimizer, loss=loss)
-    ae.fit(x_train, x_train, epochs=250, batch_size=5)
-    ImageViewer.view(ae(x_train[0:10]))
-
-    classifier = Classifier(num_classes=10, encoder=ae.encoder)
-    y_train = to_categorical(y_train)[:100]
-
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
-    loss = tf.keras.losses.CategoricalCrossentropy()
-    # ae.encoder.freeze_model()
-    classifier.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
-    classifier.fit(x_train, y_train, epochs=10, batch_size=2)
-
-
 def loss_from_string(name):
+    """
+    :param name: Name of the loss function.
+    :return: Keras Loss object.
+    """
     loss = None
     if name == "mse":
         loss = tf.keras.losses.MeanSquaredError()
@@ -60,6 +38,11 @@ def loss_from_string(name):
 
 
 def optimizer_from_string(name, learning_rate):
+    """
+    :param name: Name of the optimizer.
+    :param learning_rate: Learning rate.
+    :return: Keras Optimizer object.
+    """
     if name == "adagrad":
         optimizer = tf.keras.optimizers.Adagrad(learning_rate=learning_rate)
     elif name == "sgd":
@@ -71,8 +54,12 @@ def optimizer_from_string(name, learning_rate):
     return optimizer
 
 
-# TODO: Ensure same number from classes
 def init_data(data_config):
+    """
+    Initializes the data.
+    :param data_config: Data config.
+    :return: The processed data, ready to be used for training.
+    """
     dataset = data_config["name"]
     d1 = float(data_config["d1"])
     d1_train = float(data_config["d1_train"])
@@ -143,6 +130,12 @@ def init_data(data_config):
 
 
 def init_autoencoder(ae_config, input_shape):
+    """
+    Initializes the autoencoder.
+    :param ae_config: Autoencoder Config.
+    :param input_shape: Shape of the images.
+    :return: Autoencoder object.
+    """
     latent_size = int(ae_config["latent_size"])
 
     ae = Autoencoder(image_shape=input_shape, latent_size=latent_size)
@@ -161,6 +154,14 @@ def init_autoencoder(ae_config, input_shape):
 
 
 def init_classifier(classifier_config, encoder, num_classes, freeze):
+    """
+    Initializes classifier.
+    :param classifier_config: Classifier Config.
+    :param encoder: Encoder to be used in classifier.
+    :param num_classes: The number of different classes for the data.
+    :param freeze: True if encoder should not learn, False otherwise.
+    :return: Classifier object.
+    """
     classifier = Classifier(num_classes=num_classes, encoder=encoder)
 
     optimizer_name = classifier_config["optimizer"]
@@ -178,6 +179,7 @@ def init_classifier(classifier_config, encoder, num_classes, freeze):
 
 
 def main():
+    """Main method for the system."""
     if len(sys.argv) < 2:
         print("Please indicate config file from /Config and try again.")
         return
@@ -211,7 +213,7 @@ def main():
     ae_hist = ssl.fit_autoencoder(x_d1_train,
                                   epochs=epochs,
                                   batch_size=batch_size,
-                                  validation_data=(x_d1_val, x_d1_val))
+                                  x_val=x_d1_val)
 
     if plot_tsne:
         tsne_fig2 = tsne(x_d1_train[:200], y_d1_train[:200], 2, ssl.get_encoder())
