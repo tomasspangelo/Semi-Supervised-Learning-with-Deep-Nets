@@ -3,9 +3,16 @@ import numpy as np
 
 
 class ImageViewer:
+    """Class used statically to view images."""
 
     @staticmethod
     def view(images, n_cols=2):
+        """
+        Plots images.
+        :param images: Numpy array containing images.
+        :param n_cols: Number of columns in plot.
+        :return: None
+        """
         fig = plt.figure()
         n_rows = int(np.ceil(len(images) / n_cols))
         i = 1
