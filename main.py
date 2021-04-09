@@ -71,7 +71,6 @@ def optimizer_from_string(name, learning_rate):
 
 
 # TODO: Ensure same number from classes
-# TODO: Find 2 additional datasets
 def init_data(data_config):
     dataset = data_config["name"]
     d1 = float(data_config["d1"])
@@ -201,6 +200,7 @@ def main():
 
     epochs = int(ae_config["epochs"])
     batch_size = int(ae_config["batch_size"])
+    print("Training autoencoder:")
     ae_hist = autoencoder.fit(x_d1_train,
                               x_d1_train,
                               epochs=epochs,
@@ -229,25 +229,33 @@ def main():
     epochs = int(classifier_config["epochs"])
     batch_size = int(classifier_config["batch_size"])
 
+    print("Training C1:")
     hist1 = classifier1.fit(x_d2_train,
                             y_d2_train,
                             epochs=epochs,
                             batch_size=batch_size,
                             validation_data=(x_d2_val, y_d2_val))
-
-    test_loss1, test_acc1 = classifier1.evaluate(x_d2_test, y_d2_test)
+    print("Evaluating C1 on D2 test set:")
+    classifier1.evaluate(x_d2_test, y_d2_test)
 
     classifier_config = config["classifier"]
     latent_size = ae_config["latent_size"]
     classifier2 = init_classifier(classifier_config, Encoder(latent_size), num_classes, freeze)
+
+    print("Training C2:")
     hist2 = classifier2.fit(x_d2_train,
                             y_d2_train,
                             epochs=epochs,
                             batch_size=batch_size,
                             validation_data=(x_d2_val, y_d2_val))
-    test_loss2, test_acc2 = classifier2.evaluate(x_d2_test, y_d2_test)
+    print("Evaluating C2 on D2 test set:")
+    classifier2.evaluate(x_d2_test, y_d2_test)
 
-    # TODO: Test classifier1 and classifier2 on x_d1 (labels: y_d1)
+    print("Evaluating C1 on D1 training set:")
+    classifier1.evaluate(x_d1_train, y_d1_train)
+
+    print("Evaluating C2 on D1 training set:")
+    classifier2.evaluate(x_d1_train, y_d1_train)
 
     fig = plt.figure()
     plt.plot(hist1.history["accuracy"], 'b', label="Semi-accuracy")
