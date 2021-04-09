@@ -10,6 +10,7 @@ import numpy as np
 
 from classifier import Classifier
 from autoencoder import Autoencoder, Encoder
+from semi_supervised_learner import SSL
 
 from image_viewer import ImageViewer
 from utils import convert_to_grayscale, tsne, load_kmnist, load_emnist
@@ -193,26 +194,31 @@ def main():
     x_d2_train, x_d2_val, x_d2_test, y_d2_train, y_d2_val, y_d2_test = d2
 
     ae_config = config["autoencoder"]
-    autoencoder = init_autoencoder(ae_config, input_shape)
+    autoencoder = init_autoencoder(ae_config, input_shape)  # Should not be used
+
+    classifier_config = config["classifier"]
+    freeze = classifier_config.getboolean("freeze")
+
+    ssl = SSL(autoencoder=autoencoder,
+              classifier=init_classifier(classifier_config, autoencoder.encoder, num_classes, freeze))
 
     if plot_tsne:
-        tsne_fig1 = tsne(x_d1_train[:200], y_d1_train[:200], 1, autoencoder.encoder)
+        tsne_fig1 = tsne(x_d1_train[:200], y_d1_train[:200], 1, ssl.get_encoder())
 
     epochs = int(ae_config["epochs"])
     batch_size = int(ae_config["batch_size"])
     print("Training autoencoder:")
-    ae_hist = autoencoder.fit(x_d1_train,
-                              x_d1_train,
-                              epochs=epochs,
-                              batch_size=batch_size,
-                              validation_data=(x_d1_val, x_d1_val))
+    ae_hist = ssl.fit_autoencoder(x_d1_train,
+                                  epochs=epochs,
+                                  batch_size=batch_size,
+                                  validation_data=(x_d1_val, x_d1_val))
 
     if plot_tsne:
-        tsne_fig2 = tsne(x_d1_train[:200], y_d1_train[:200], 2, autoencoder.encoder)
+        tsne_fig2 = tsne(x_d1_train[:200], y_d1_train[:200], 2, ssl.get_encoder())
 
     reconstructions = int(vis_config["reconstructions"])
     ImageViewer.view(x_d1_train[:reconstructions], n_cols=4)
-    ImageViewer.view(autoencoder(x_d1_train[:reconstructions]), n_cols=4)
+    ImageViewer.view(ssl.forward_ae(x_d1_train[:reconstructions]), n_cols=4)
 
     fig = plt.figure()
     plt.plot(ae_hist.history["loss"], 'b', label="loss")
@@ -222,23 +228,18 @@ def main():
     plt.legend(loc="upper right")
     fig.show()
 
-    classifier_config = config["classifier"]
-    freeze = classifier_config.getboolean("freeze")
-    classifier1 = init_classifier(classifier_config, autoencoder.encoder, num_classes, freeze)
-
     epochs = int(classifier_config["epochs"])
     batch_size = int(classifier_config["batch_size"])
 
     print("Training C1:")
-    hist1 = classifier1.fit(x_d2_train,
-                            y_d2_train,
-                            epochs=epochs,
-                            batch_size=batch_size,
-                            validation_data=(x_d2_val, y_d2_val))
+    hist1 = ssl.fit_classifier(x_d2_train,
+                               y_d2_train,
+                               epochs=epochs,
+                               batch_size=batch_size,
+                               validation_data=(x_d2_val, y_d2_val))
     print("Evaluating C1 on D2 test set:")
-    classifier1.evaluate(x_d2_test, y_d2_test)
+    ssl.evaluate_classifier(x_d2_test, y_d2_test)
 
-    classifier_config = config["classifier"]
     latent_size = ae_config["latent_size"]
     classifier2 = init_classifier(classifier_config, Encoder(latent_size), num_classes, freeze)
 
@@ -252,7 +253,7 @@ def main():
     classifier2.evaluate(x_d2_test, y_d2_test)
 
     print("Evaluating C1 on D1 training set:")
-    classifier1.evaluate(x_d1_train, y_d1_train)
+    ssl.evaluate_classifier(x_d1_train, y_d1_train)
 
     print("Evaluating C2 on D1 training set:")
     classifier2.evaluate(x_d1_train, y_d1_train)
@@ -268,7 +269,7 @@ def main():
     fig.show()
 
     if plot_tsne:
-        tsne_fig3 = tsne(x_d1_train[:200], y_d1_train[:200], 3, autoencoder.encoder)
+        tsne_fig3 = tsne(x_d1_train[:200], y_d1_train[:200], 3, ssl.get_encoder())
         tsne_fig1.show()
         tsne_fig2.show()
         tsne_fig3.show()
