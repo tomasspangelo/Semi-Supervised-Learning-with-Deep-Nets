@@ -191,6 +191,7 @@ def main():
 
     vis_config = config["visualization"]
     plot_tsne = vis_config.getboolean("tSNE")
+    num = int(vis_config["num"])
 
     # Initialize the data
     data_config = config["dataset"]
@@ -211,7 +212,7 @@ def main():
 
     # Plot tSNE before any training
     if plot_tsne:
-        tsne_fig1 = tsne(x_d1_train[:200], y_d1_train[:200], 1, ssl.get_encoder())
+        tsne_fig1 = tsne(x_d1_train[:num], y_d1_train[:num], 1, ssl.get_encoder())
 
     # Train autoencoder-part of semi-supervised learner
     epochs = int(ae_config["epochs"])
@@ -224,7 +225,7 @@ def main():
 
     # Plot tSNE after autoencoder training
     if plot_tsne:
-        tsne_fig2 = tsne(x_d1_train[:200], y_d1_train[:200], 2, ssl.get_encoder())
+        tsne_fig2 = tsne(x_d1_train[:num], y_d1_train[:num], 2, ssl.get_encoder())
 
     # Plot reconstructions
     reconstructions = int(vis_config["reconstructions"])
@@ -287,7 +288,7 @@ def main():
     # Plot tSNE after semi-supervised learner has trained both autoencoder
     # and classifier.
     if plot_tsne:
-        tsne_fig3 = tsne(x_d1_train[:200], y_d1_train[:200], 3, ssl.get_encoder())
+        tsne_fig3 = tsne(x_d1_train[:num], y_d1_train[:num], 3, ssl.get_encoder())
         tsne_fig1.show()
         tsne_fig2.show()
         tsne_fig3.show()
