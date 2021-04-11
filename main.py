@@ -14,6 +14,9 @@ from semi_supervised_learner import SSL
 
 from image_viewer import ImageViewer
 from utils import convert_to_grayscale, tsne, load_kmnist, load_emnist
+import os
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 def loss_from_string(name):
