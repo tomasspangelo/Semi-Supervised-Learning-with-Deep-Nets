@@ -3,6 +3,7 @@ from PIL import Image
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 from scipy import io as spio
+import tensorflow as tf
 
 
 def convert_to_grayscale(arr):
@@ -85,6 +86,44 @@ def load_emnist():
     x_test = x_test.reshape(x_test.shape[0], 28, 28, order="A")
 
     return (x_train, y_train), (x_test, y_test)
+
+
+def loss_from_string(name):
+    """
+    :param name: Name of the loss function.
+    :return: Keras Loss object.
+    """
+    loss = None
+    if name == "mse":
+        loss = tf.keras.losses.MeanSquaredError()
+    elif name == "cc":
+        loss = tf.keras.losses.CategoricalCrossentropy()
+    elif name == "bc":
+        loss = tf.keras.losses.BinaryCrossentropy()
+    elif name == "scc":
+        loss = tf.keras.losses.SparseCategoricalCrossentropy()
+    elif name == "kld":
+        loss = tf.keras.losses.KLDivergence()
+    elif name == "mae":
+        loss = tf.keras.losses.MeanAbsoluteError()
+    return loss
+
+
+def optimizer_from_string(name, learning_rate):
+    """
+    :param name: Name of the optimizer.
+    :param learning_rate: Learning rate.
+    :return: Keras Optimizer object.
+    """
+    if name == "adagrad":
+        optimizer = tf.keras.optimizers.Adagrad(learning_rate=learning_rate)
+    elif name == "sgd":
+        optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate)
+    elif name == "rmsprop":
+        optimizer = tf.keras.optimizers.RMSprop(learning_rate=learning_rate)
+    else:
+        optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+    return optimizer
 
 
 if __name__ == "__main__":
